@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <base target="_top"> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Khodtim APP - รายชื่อนักเรียน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; background-color: #f3f4f6; }
+        .triangle-corner {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 45px solid #3b82f6; 
+            border-left: 45px solid transparent;
+            border-top-right-radius: 0.75rem; 
+        }
+        .sno-text {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-view" class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-md pb-10">
+        <div class="bg-blue-600 text-white p-4 rounded-b-3xl shadow-lg relative">
+            <div class="flex items-center space-x-3">
+                <img src="https://img2.pic.in.th/4d3a830f3eb506411.png" class="w-10 h-10 bg-white rounded-full p-1">
+                <div>
+                    <p class="text-sm opacity-90">ยินดีต้อนรับ คุณครูผู้บันทึก</p>
+                    <p id="list-teacher-profile" class="font-bold text-lg">กำลังโหลดข้อมูล...</p>
+                </div>
+            </div>
+            <div class="mt-4 bg-white bg-opacity-20 p-3 rounded-xl border border-white border-opacity-30 text-center">
+                <h2 class="text-xl font-bold">ระบบบันทึกข้อมูลการเยี่ยมบ้าน</h2>
+                <p class="text-xs opacity-90 mt-1">โปรดเลือกรายชื่อนักเรียนด้านล่างเพื่อดำเนินการ</p>
+            </div>
+        </div>
+
+        <div id="studentListContainer" class="px-4 mt-4 space-y-3">
+            <!-- เจนเนอเรทผ่าน JS -->
+        </div>
+    </div>
+
+    <script>
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const teacherRoom = urlParams.get('room');
+        const teacherName = urlParams.get('tname');
+
+        if (!teacherRoom) {
+            window.location.href = 'index.html'; 
+        } else {
+            document.getElementById('list-teacher-profile').innerText = `${teacherName} (ห้อง ${teacherRoom})`;
+            fetchStudents();
+        }
+
+        function fetchStudents() {
+            Swal.fire({ title: 'กำลังโหลดรายชื่อ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            
+            fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getStudents", teacherRoom: teacherRoom }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            })
+            .then(res => res.json())
+            .then(result => {
+                Swal.close();
+                if (result.status === 'success') {
+                    renderStudentList(result.students);
+                }
+            }).catch(err => { Swal.fire('Error', 'เชื่อมต่อข้อมูลนักเรียนล้มเหลว', 'error'); });
+        }
+
+        function renderStudentList(students) {
+            const container = document.getElementById('studentListContainer');
+            container.innerHTML = '';
+            if(students.length === 0) {
+                container.innerHTML = '<div class="bg-red-50 border border-red-200 p-4 rounded-xl text-center"><p class="text-red-500 font-bold">ไม่พบรายชื่อนักเรียนประจำชั้นห้องนี้</p></div>';
+                return;
+            }
+            students.forEach(student => {
+                const card = document.createElement("div");
+                card.className = "bg-white p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer";
+                card.onclick = () => {
+                    window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(teacherRoom)}&tname=${encodeURIComponent(teacherName)}`;
+                };
+                card.innerHTML = `
+                    <div class="triangle-corner"></div>
+                    <div class="sno-text">${student.sno}</div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-14 h-14 rounded-full object-cover border-2 border-blue-100 shadow-sm">
+                        <div>
+                            <p class="font-bold text-gray-800 text-lg leading-tight">${student.fullName}</p>
+                            <p class="text-xs text-gray-500 mt-1">รหัสนักเรียน: ${student.sid}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
