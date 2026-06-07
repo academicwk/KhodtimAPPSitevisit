@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
+    <style>
         body { font-family: 'Sarabun', sans-serif; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
         .triangle-corner {
             position: absolute; top: 0; right: 0; width: 0; height: 0;
@@ -17,8 +17,7 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-
-<div id="main-view" class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-md">
+    <div id="main-view" class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-md">
         <div class="bg-blue-600 text-white p-4 rounded-b-3xl shadow-lg relative">
             <div class="flex justify-between items-start mb-2">
                 <div class="flex items-center space-x-3">
@@ -39,7 +38,7 @@
     </div>
 
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
+        const GAS_WEB_APP_URL = "วาง URL ของครูตรงนี้ครับ";
         
         const urlParams = new URLSearchParams(window.location.search);
         const teacherRoom = urlParams.get('room');
@@ -69,7 +68,7 @@
             }).catch(err => { Swal.fire('Error', 'เชื่อมต่อข้อมูลนักเรียนล้มเหลว', 'error'); });
         }
 
-function renderStudentList(students) {
+        function renderStudentList(students) {
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
             if(students.length === 0) {
