@@ -25,7 +25,7 @@
                     <img src="https://img2.pic.in.th/4d3a830f3eb506411.png" class="w-10 h-10 bg-white rounded-full p-1">
                     <div>
                         <p class="text-sm opacity-90">ระบบเยี่ยมบ้าน</p>
-                        <p id="list-teacher-profile" class="font-bold text-lg">กำลังโหลด...</p>
+                        <p id="list-teacher-profile" class="font-bold text-lg">กำลังตรวจสอบข้อมูล...</p>
                     </div>
                 </div>
                 <button onclick="handleLogout()" class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full shadow transition-colors">ออกจากระบบ</button>
@@ -41,35 +41,94 @@
     <script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
         
-        const urlParams = new URLSearchParams(window.location.search);
-        const teacherRoom = urlParams.get('room');
-        const teacherName = urlParams.get('tname');
+        let globalTeacherRoom = "";
+        let globalTeacherName = "";
 
-        if (!teacherRoom) {
-            window.location.href = 'index.html'; 
-        } else {
-            document.getElementById('list-teacher-profile').innerText = `${teacherName} (ห้อง ${teacherRoom})`;
+        // ให้โค้ดเริ่มทำงานเมื่อโหลดหน้าเว็บเสร็จ (ป้องกัน Error)
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            globalTeacherRoom = urlParams.get('room');
+            globalTeacherName = urlParams.get('tname');
+
+            if (!globalTeacherRoom) {
+                window.location.href = 'index.html'; 
+                return;
+            } 
+            
+            document.getElementById('list-teacher-profile').innerText = `${globalTeacherName} (ห้อง ${globalTeacherRoom})`;
             fetchStudents();
-        }
+        });
 
         function fetchStudents() {
-            Swal.fire({ title: 'กำลังโหลดรายชื่อ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ title: 'กำลังดึงรายชื่อจาก WeM-2026...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            }
             
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: "getStudents", teacherRoom: teacherRoom }),
+                body: JSON.stringify({ action: "getStudents", teacherRoom: globalTeacherRoom }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
             .then(res => res.json())
             .then(result => {
-                Swal.close();
+                if (typeof Swal !== 'undefined') Swal.close();
                 if (result.status === 'success') {
                     renderStudentList(result.students);
+                } else {
+                    Swal.fire('ข้อผิดพลาด', 'ดึงข้อมูลล้มเหลว', 'error');
                 }
-            }).catch(err => { Swal.fire('Error', 'เชื่อมต่อข้อมูลนักเรียนล้มเหลว', 'error'); });
+            }).catch(err => { 
+                if (typeof Swal !== 'undefined') Swal.close();
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message); 
+            });
         }
 
         function renderStudentList(students) {
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
-            if(students.length ===
+            
+            if(!students || students.length === 0) {
+                container.innerHTML = `<div class="bg-red-50 border border-red-200 p-4 rounded-xl text-center"><p class="text-red-500 font-bold text-sm">ไม่พบรายชื่อนักเรียนห้อง ${globalTeacherRoom} ในระบบ WeM-2026</p></div>`;
+                return;
+            }
+            
+            students.forEach(student => {
+                const card = document.createElement("div");
+                card.className = "bg-white p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer border border-gray-100";
+                card.onclick = () => {
+                    window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(globalTeacherRoom)}&tname=${encodeURIComponent(globalTeacherName)}&fname=${encodeURIComponent(student.fname)}&lname=${encodeURIComponent(student.lname)}&pre=${encodeURIComponent(student.pre)}&sno=${encodeURIComponent(student.sno)}`;
+                };
+                card.innerHTML = `
+                    <div class="triangle-corner"></div>
+                    <div class="sno-text">${student.sno}</div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-sm opacity-80">
+                        <div>
+                            <p class="font-bold text-gray-800 text-base leading-tight">${student.fullName}</p>
+                            <p class="text-xs text-gray-500 mt-1">รหัสนักเรียน: ${student.sid}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function handleLogout() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'ยืนยันการออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        localStorage.removeItem("homeVisitUser");
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                localStorage.removeItem("homeVisitUser");
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
