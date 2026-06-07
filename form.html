@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Khodtim APP - ฟอร์มเยี่ยมบ้าน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; -webkit-touch-callout: none; user-select: none; }
+        .input-field { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; outline: none; margin-top: 0.25rem; font-size: 0.875rem; background-color: #f9fafb; transition: all 0.2s; }
+        .input-field:focus { border-color: #3b82f6; background-color: #ffffff; ring: 2px; }
+        .section-title { font-size: 0.875rem; font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-24">
+
+    <div class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-md relative">
+        <div class="bg-blue-600 text-white p-4 rounded-b-3xl shadow-lg relative">
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex items-center space-x-3">
+                    <img src="https://img2.pic.in.th/4d3a830f3eb506411.png" class="w-10 h-10 bg-white rounded-full p-1">
+                    <div>
+                        <p class="text-sm opacity-90">ข้อมูลเยี่ยมบ้านนักเรียน</p>
+                        <p id="teacher-profile" class="font-bold text-lg">ผู้บันทึก: กำลังโหลด...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="visitForm" class="px-4 mt-4 space-y-4">
+            <input type="hidden" id="teacherId" value="">
+            <input type="hidden" id="teacherName" value="">
+            <input type="hidden" id="rowId" value="">
+            <input type="hidden" id="studentSid" value="">
+            <input type="hidden" id="studentPre" value="">
+            <input type="hidden" id="studentFname" value="">
+            <input type="hidden" id="studentLname" value="">
+            <input type="hidden" id="studentRoom" value="">
+
+            <div class="bg-white rounded-xl shadow p-4">
+                <h3 class="section-title text-blue-800">ข้อมูลพื้นฐานการเยี่ยมบ้าน</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">ชื่อ-สกุล นักเรียน</label>
+                        <input type="text" id="studentNameDisplay" readonly class="input-field font-bold text-blue-900 bg-gray-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">เลขประจำตัวนักเรียน</label>
+                        <input type="text" id="studentSidDisplay" readonly class="input-field font-bold text-blue-900 bg-gray-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">ชื่อ-สกุล ผู้ให้ข้อมูล</label>
+                        <input type="text" id="informantName" required class="input-field" placeholder="ระบุชื่อ-สกุล">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">ความเกี่ยวข้องกับนักเรียน</label>
+                        <select id="relationship" required onchange="toggleOther(this)" class="input-field">
+                            <option value="">-- เลือกความเกี่ยวข้อง --</option>
+                            <option value="บิดา">บิดา</option>
+                            <option value="มารดา">มารดา</option>
+                            <option value="ญาติ">ญาติ</option>
+                            <option value="อื่นๆ">อื่นๆ โปรดระบุ</option>
+                        </select>
+                        <input type="text" id="relationshipOther" placeholder="โปรดระบุความเกี่ยวข้อง" class="input-field hidden mt-2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">เบอร์โทรศัพท์ที่ติดต่อได้</label>
+                        <input type="tel" id="phone" required inputmode="numeric" placeholder="08XXXXXXXX" class="input-field">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-4">
+                <h3 class="section-title text-blue-800">1. ข้อมูลที่พักอาศัย</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">บ้านที่อาศัย</label>
+                        <select id="housingType" required class="input-field"><option value="">-- เลือก --</option><option value="บ้านตนเอง">บ้านตนเอง</option><option value="บ้านญาติ">บ้านญาติ</option><option value="บ้านเช่า">บ้านเช่า</option><option value="บ้านผู้อื่น">บ้านผู้อื่น</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">การเดินทางมาโรงเรียน</label>
+                        <select id="transportation" required class="input-field"><option value="">-- เลือก --</option><option value="รถยนต์ส่วนตัว">รถยนต์ส่วนตัว</option><option value="รถจักรยานยนต์ส่วนตัว">รถจักรยานยนต์ส่วนตัว</option><option value="รถโดยสารสาธารณะ">รถโดยสารสาธารณะ</option><option value="รถรับส่งนักเรียน">รถรับส่งนักเรียน</option><option value="เดินเท้า">เดินเท้า</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">สภาพบ้านที่พักอาศัย</label>
+                        <select id="housingCondition" required class="input-field"><option value="">-- เลือก --</option><option value="มั่นคงแข็งแรง">มั่นคงแข็งแรง</option><option value="เก่าทรุดโทรม">เก่าทรุดโทรม</option><option value="แออัดคับแคบ">แออัดคับแคบ</option></select>
+                    </div>
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">สาธารณูปโภคพื้นฐาน <span class="font-normal text-red-500">(เลือกได้มากกว่า 1)</span></label>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="utilities" value="ระบบไฟฟ้า" class="w-4 h-4 rounded text-blue-600"><span>ระบบไฟฟ้า</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="utilities" value="น้ำประปา" class="w-4 h-4 rounded text-blue-600"><span>น้ำประปา</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="utilities" value="อินเทอร์เน็ต" class="w-4 h-4 rounded text-blue-600"><span>อินเทอร์เน็ต</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="utilities" value="ถนนสาธารณะ" class="w-4 h-4 rounded text-blue-600"><span>ถนนสาธารณะ</span></label>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-gray-100">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">สภาพสังคมโดยรอบ <span class="font-normal text-red-500">(เลือกได้มากกว่า 1)</span></label>
+                        <div class="grid grid-cols-1 gap-2 text-xs">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="environment" value="ปกติทั่วไป" class="w-4 h-4 rounded text-blue-600"><span>ปกติทั่วไป</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="environment" value="ใกล้แหล่งมั่วสุม (ยาเสพติด/การพนัน/ทะเลาะวิวาท)" class="w-4 h-4 rounded text-blue-600"><span>ใกล้แหล่งมั่วสุม (ยาเสพติด/พนัน/ทะเลาะ)</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="environment" value="ใกล้สถานบันเทิง" class="w-4 h-4 rounded text-blue-600"><span>ใกล้สถานบันเทิง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="environment" value="ใกล้แหล่งมลพิษ" class="w-4 h-4 rounded text-blue-600"><span>ใกล้แหล่งมลพิษ</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="environment" value="ชุมชนแออัด" class="w-4 h-4 rounded text-blue-600"><span>ชุมชนแออัด</span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-4">
+                <h3 class="section-title text-blue-800">2. ความสัมพันธ์ในครอบครัว</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">จำนวนสมาชิก (รวมนักเรียน)</label>
+                        <select id="familySize" required class="input-field"><option value="">-- เลือก --</option><option value="1 คน">1 คน</option><option value="2 คน">2 คน</option><option value="3 คน">3 คน</option><option value="4 คน">4 คน</option><option value="5 คน">5 คน</option><option value="6 คน">6 คน</option><option value="7 คน">7 คน</option><option value="8 คน">8 คน</option><option value="9 คน">9 คน</option><option value="10 คน">10 คน</option><option value="มากกว่า 10 คน">มากกว่า 10 คน</option></select>
+                    </div>
+                    <div class="pt-2 border-t border-gray-100">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">บุคคลที่นักเรียนพักอาศัยอยู่ด้วย <span class="font-normal text-red-500">(เลือกได้มากกว่า 1)</span></label>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="livingWith" value="บิดา" class="w-4 h-4 rounded text-blue-600"><span>บิดา</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="livingWith" value="มารดา" class="w-4 h-4 rounded text-blue-600"><span>มารดา</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="livingWith" value="พี่น้อง" class="w-4 h-4 rounded text-blue-600"><span>พี่น้อง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="livingWith" value="ญาติผู้ใหญ่" class="w-4 h-4 rounded text-blue-600"><span>ญาติผู้ใหญ่</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="livingWith" value="บุคคลอื่น" class="w-4 h-4 rounded text-blue-600"><span>บุคคลอื่น</span></label>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100 mt-3">
+                        <div><label class="block text-xs font-bold text-gray-700">สัมพันธ์กับบิดา</label><select id="relFather" class="input-field !py-2 text-xs"><option value="ไม่มี">ไม่มี</option><option value="สนิทสนม">สนิทสนม</option><option value="ปกติทั่วไป">ปกติทั่วไป</option><option value="ห่างเหิน">ห่างเหิน</option><option value="ขัดแย้ง">ขัดแย้ง</option></select></div>
+                        <div><label class="block text-xs font-bold text-gray-700">สัมพันธ์กับมารดา</label><select id="relMother" class="input-field !py-2 text-xs"><option value="ไม่มี">ไม่มี</option><option value="สนิทสนม">สนิทสนม</option><option value="ปกติทั่วไป">ปกติทั่วไป</option><option value="ห่างเหิน">ห่างเหิน</option><option value="ขัดแย้ง">ขัดแย้ง</option></select></div>
+                        <div><label class="block text-xs font-bold text-gray-700">สัมพันธ์กับพี่น้อง</label><select id="relSibling" class="input-field !py-2 text-xs"><option value="ไม่มี">ไม่มี</option><option value="สนิทสนม">สนิทสนม</option><option value="ปกติทั่วไป">ปกติทั่วไป</option><option value="ห่างเหิน">ห่างเหิน</option><option value="ขัดแย้ง">ขัดแย้ง</option></select></div>
+                        <div><label class="block text-xs font-bold text-gray-700">สัมพันธ์กับญาติ</label><select id="relRelative" class="input-field !py-2 text-xs"><option value="ไม่มี">ไม่มี</option><option value="สนิทสนม">สนิทสนม</option><option value="ปกติทั่วไป">ปกติทั่วไป</option><option value="ห่างเหิน">ห่างเหิน</option><option value="ขัดแย้ง">ขัดแย้ง</option></select></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-4">
+                <h3 class="section-title text-blue-800">3. ความเสี่ยงของนักเรียน</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 border-b border-gray-100 pb-1">ด้านสุขภาพ</label>
+                        <div class="grid grid-cols-1 gap-1.5 text-[13px]">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskHealth" value="ไม่มีความเสี่ยง" class="w-4 h-4 rounded text-blue-600"><span>ไม่มีความเสี่ยง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskHealth" value="ร่างกายไม่แข็งแรง" class="w-4 h-4 rounded text-blue-600"><span>ร่างกายไม่แข็งแรง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskHealth" value="มีโรคประจำตัว" class="w-4 h-4 rounded text-blue-600"><span>มีโรคประจำตัว</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskHealth" value="ป่วยเป็นโรคร้ายแรง-เรื้อรัง" class="w-4 h-4 rounded text-blue-600"><span>ป่วยเป็นโรคร้ายแรง-เรื้อรัง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskHealth" value="สมรรถภาพทางกายต่ำ" class="w-4 h-4 rounded text-blue-600"><span>สมรรถภาพทางกายต่ำ</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskHealth" value="มีภาวะทุพโภชนาการ" class="w-4 h-4 rounded text-blue-600"><span>มีภาวะทุพโภชนาการ</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 border-b border-gray-100 pb-1">ด้านสวัสดิภาพ/ความปลอดภัย</label>
+                        <div class="grid grid-cols-1 gap-1.5 text-[13px]">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSafety" value="ไม่มีความเสี่ยง" class="w-4 h-4 rounded text-blue-600"><span>ไม่มีความเสี่ยง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSafety" value="บิดามารดาแยกทางกัน-มีครอบครัวใหม่" class="w-4 h-4 rounded text-blue-600"><span>บิดามารดาแยกทางกัน-มีครอบครัวใหม่</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSafety" value="บุคคลในครอบครัวเจป่วยร้ายแรง" class="w-4 h-4 rounded text-blue-600"><span>บุคคลในครอบครัวเจ็บป่วยร้ายแรง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSafety" value="มีความขัดแย้ง/ทะเลาะกันในครอบครัว" class="w-4 h-4 rounded text-blue-600"><span>มีความขัดแย้ง/ทะเลาะกันในครอบครัว</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSafety" value="ไม่มีผู้ดูแล-อยู่เพียงลำพัง" class="w-4 h-4 rounded text-blue-600"><span>ไม่มีผู้ดูแล-อยู่เพียงลำพัง</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 border-b border-gray-100 pb-1">ด้านยาเสพติด</label>
+                        <div class="grid grid-cols-1 gap-1.5 text-[13px]">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskDrugs" value="ไม่มีความเสี่ยง" class="w-4 h-4 rounded text-blue-600"><span>ไม่มีความเสี่ยง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskDrugs" value="บุคคลในครอบครัวใช้ยาเสพติด" class="w-4 h-4 rounded text-blue-600"><span>บุคคลในครอบครัวใช้ยาเสพติด</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskDrugs" value="อยู่ในชุมชนที่มีผู้ใช้ยาเสพติด" class="w-4 h-4 rounded text-blue-600"><span>อยู่ในชุมชนที่มีผู้ใช้ยาเสพติด</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskDrugs" value="คบเพื่อนที่ใช้ยาเสพติด" class="w-4 h-4 rounded text-blue-600"><span>คบเพื่อนที่ใช้ยาเสพติด</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 border-b border-gray-100 pb-1">ด้านพฤติกรรมทางเพศ</label>
+                        <div class="grid grid-cols-1 gap-1.5 text-[13px]">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSex" value="ไม่มีความเสี่ยง" class="w-4 h-4 rounded text-blue-600"><span>ไม่มีความเสี่ยง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSex" value="เข้าถึงสื่อยั่วยุทางเพศได้ง่าย" class="w-4 h-4 rounded text-blue-600"><span>เข้าถึงสื่อยั่วยุทางเพศได้ง่าย</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSex" value="มีการมั่วสุมทางเพศ" class="w-4 h-4 rounded text-blue-600"><span>มีการมั่วสุมทางเพศ</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskSex" value="ตั้งครรภ์" class="w-4 h-4 rounded text-blue-600"><span>ตั้งครรภ์</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 border-b border-gray-100 pb-1">ด้านพฤติกรรมก้าวร้าว</label>
+                        <div class="grid grid-cols-1 gap-1.5 text-[13px]">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskAggression" value="ไม่มีความเสี่ยง" class="w-4 h-4 rounded text-blue-600"><span>ไม่มีความเสี่ยง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskAggression" value="พูดจาก้าวร้าว หยาบคาย" class="w-4 h-4 rounded text-blue-600"><span>พูดจาก้าวร้าว หยาบคาย</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskAggression" value="ทำร้ายร่างกายผู้อื่น" class="w-4 h-4 rounded text-blue-600"><span>ทำร้ายร่างกายผู้อื่น</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskAggression" value="ทะเลาะวิวาท" class="w-4 h-4 rounded text-blue-600"><span>ทะเลาะวิวาท</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 border-b border-gray-100 pb-1">ด้านสื่อเทคโนโลยี</label>
+                        <div class="grid grid-cols-1 gap-1.5 text-[13px]">
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskTech" value="ไม่มีความเสี่ยง" class="w-4 h-4 rounded text-blue-600"><span>ไม่มีความเสี่ยง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskTech" value="มีเครื่องมือสื่อสารเป็นของตนเอง" class="w-4 h-4 rounded text-blue-600"><span>มีเครื่องมือสื่อสารเป็นของตนเอง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskTech" value="ใช้เครื่องมือสื่อสารของผู้ปกครอง-คนในครอบครัว" class="w-4 h-4 rounded text-blue-600"><span>ใช้เครื่องมือสื่อสารของผู้ปกครอง</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskTech" value="ติดเกม" class="w-4 h-4 rounded text-blue-600"><span>ติดเกม</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="riskTech" value="ติดสื่อสังคมออนไลน์" class="w-4 h-4 rounded text-blue-600"><span>ติดสื่อสังคมออนไลน์</span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-4">
+                <h3 class="section-title text-blue-800">4. สิ่งที่ต้องการให้ช่วยเหลือ</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">ด้านการเรียน</label>
+                        <textarea id="assistAcademic" rows="2" class="input-field"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">ด้านพฤติกรรม</label>
+                        <textarea id="assistBehavior" rows="2" class="input-field"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">ด้านเศรษฐกิจ</label>
+                        <textarea id="assistEconomy" rows="2" class="input-field"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">ข้อห่วงใยของผู้ปกครองที่มีต่อนักเรียน</label>
+                        <textarea id="parentConcern" rows="2" class="input-field"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-4">
+                <h3 class="section-title text-blue-800">พิกัดและภาพถ่ายหลักฐาน</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-2">พิกัด GPS <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2 mb-2">
+                            <input type="text" id="locationData" readonly placeholder="กดปุ่มปักหมุด" class="input-field flex-1 !mt-0 bg-gray-100">
+                            <input type="hidden" id="lat"><input type="hidden" id="lng">
+                            <button type="button" onclick="getLocation()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 rounded-lg shadow-sm transition whitespace-nowrap text-sm">ปักหมุด</button>
+                        </div>
+                        <div id="mapPreviewContainer" class="hidden mt-2 rounded-lg overflow-hidden border border-gray-200 shadow-sm w-full h-40 bg-gray-100">
+                            <iframe id="mapIframe" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-2">ถ่ายภาพหน้าบ้านนักเรียน <span class="text-red-500">*</span></label>
+                        <button type="button" onclick="startCamera()" id="openCameraBtn" class="w-full bg-blue-50 text-blue-600 border-2 border-dashed border-blue-300 py-6 rounded-xl font-bold flex flex-col items-center gap-2 hover:bg-blue-100 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span id="cameraButtonText" class="text-sm">กดเพื่อถ่ายภาพหน้าบ้าน</span>
+                        </button>
+
+                        <div id="cameraUI" class="hidden mt-3">
+                            <div class="relative w-full aspect-[3/4] bg-black rounded-xl overflow-hidden shadow-inner">
+                                <video id="cameraVideo" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline></video>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 mt-3">
+                                <button type="button" onclick="takeSnapshot()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow text-sm">📸 ถ่ายภาพ</button>
+                                <button type="button" onclick="stopCameraAndHide()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 rounded-lg text-sm">ยกเลิก</button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 hidden" id="previewContainer">
+                            <img id="imagePreview" class="max-h-48 mx-auto rounded-xl shadow-md border border-gray-200">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 max-w-md mx-auto">
+                <div class="flex gap-2">
+                    <button type="button" onclick="backToList()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3.5 rounded-xl text-sm transition">
+                        ย้อนกลับ
+                    </button>
+                    <button type="submit" id="submitBtn" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg flex justify-center items-center gap-2 transition text-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        บันทึกข้อมูล
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const LIFF_ID = "2010204735-46fVAlll"; 
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
+
+        let base64Image = "";
+        let cameraStream = null;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentSid = urlParams.get('sid');
+        const teacherRoom = urlParams.get('room');
+        const teacherName = urlParams.get('tname');
+
+        if(!studentSid || !teacherRoom) { window.location.href = 'index.html'; }
+
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    document.getElementById('teacherId').value = profile.userId;
+                    document.getElementById('teacherName').value = teacherName;
+                    document.getElementById('teacher-profile').innerText = `ผู้บันทึก: ${teacherName}`;
+                    loadExistingData();
+                } else { liff.login(); }
+            } catch (err) { Swal.fire('แจ้งเตือน', 'กรุณาเข้าใช้งานผ่าน LINE', 'warning'); }
+        }
+
+        initializeLiff();
+
+        function setCheckedValues(name, commaSeparatedString) {
+            const boxes = document.querySelectorAll(`input[name="${name}"]`);
+            boxes.forEach(cb => cb.checked = false);
+            if (!commaSeparatedString) return;
+            const values = commaSeparatedString.split(',').map(s => s.trim());
+            boxes.forEach(cb => { if (values.includes(cb.value)) cb.checked = true; });
+        }
+
+        function loadExistingData() {
+            Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            
+            fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "getStudentData", studentSid: studentSid }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            })
+            .then(res => res.json())
+            .then(result => {
+                document.getElementById('visitForm').reset();
+                document.getElementById('studentSid').value = studentSid;
+                document.getElementById('studentRoom').value = teacherRoom;
+                document.getElementById('studentSidDisplay').value = studentSid;
+                
+                if (result.status === 'found' || result.status === 'empty') {
+                    document.getElementById('rowId').value = result.rowId;
+                    
+                    if(result.studentInfo) {
+                        document.getElementById('studentPre').value = result.studentInfo.pre;
+                        document.getElementById('studentFname').value = result.studentInfo.fname;
+                        document.getElementById('studentLname').value = result.studentInfo.lname;
+                        document.getElementById('studentSno').value = result.studentInfo.sno;
+                        document.getElementById('studentNameDisplay').value = result.studentInfo.fullName;
+                    }
+
+                    if (result.status === 'found') {
+                        const d = result.data;
+                        document.getElementById('informantName').value = d.informantName || "";
+                        
+                        const rel = d.relationship || "";
+                        if (['บิดา', 'มารดา', 'ญาติ'].includes(rel)) { document.getElementById('relationship').value = rel; } 
+                        else if (rel) {
+                            document.getElementById('relationship').value = 'อื่นๆ';
+                            document.getElementById('relationshipOther').value = rel;
+                            document.getElementById('relationshipOther').classList.remove('hidden');
+                        }
+
+                        if (d.phone) document.getElementById('phone').value = d.phone.replace(/^'/, '');
+                        
+                        document.getElementById('housingType').value = d.housingType || "";
+                        document.getElementById('transportation').value = d.transportation || "";
+                        document.getElementById('housingCondition').value = d.housingCondition || "";
+                        setCheckedValues('utilities', d.utilities);
+                        setCheckedValues('environment', d.environment);
+                        
+                        document.getElementById('familySize').value = d.familySize || "";
+                        setCheckedValues('livingWith', d.livingWith);
+                        document.getElementById('relFather').value = d.relFather || "";
+                        document.getElementById('relMother').value = d.relMother || "";
+                        document.getElementById('relSibling').value = d.relSibling || "";
+                        document.getElementById('relRelative').value = d.relRelative || "";
+                        
+                        setCheckedValues('riskHealth', d.riskHealth);
+                        setCheckedValues('riskSafety', d.riskSafety);
+                        setCheckedValues('riskDrugs', d.riskDrugs);
+                        setCheckedValues('riskSex', d.riskSex);
+                        setCheckedValues('riskAggression', d.riskAggression);
+                        setCheckedValues('riskTech', d.riskTech);
+                        
+                        document.getElementById('assistAcademic').value = d.assistAcademic || "";
+                        document.getElementById('assistBehavior').value = d.assistBehavior || "";
+                        document.getElementById('assistEconomy').value = d.assistEconomy || "";
+                        document.getElementById('parentConcern').value = d.parentConcern || "";
+                        
+                        if (d.lat && d.lng) {
+                            document.getElementById('lat').value = d.lat;
+                            document.getElementById('lng').value = d.lng;
+                            document.getElementById('locationData').value = `${parseFloat(d.lat).toFixed(6)}, ${parseFloat(d.lng).toFixed(6)}`;
+                            document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${d.lat},${d.lng}&hl=th&z=17&output=embed`;
+                            document.getElementById('mapPreviewContainer').classList.remove('hidden');
+                        }
+                        if (d.imageUrl) {
+                            document.getElementById('imagePreview').src = d.imageUrl;
+                            document.getElementById('previewContainer').classList.remove('hidden');
+                            document.getElementById('cameraButtonText').innerText = "ถ่ายภาพใหม่ (หากต้องการเปลี่ยน)";
+                        }
+                    }
+                    Swal.close();
+                } else {
+                    Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลนักเรียนรหัส ' + studentSid, 'error').then(()=>{ backToList(); });
+                }
+            })
+            .catch(err => { Swal.fire('Error', 'การดึงข้อมูลผิดพลาด', 'error'); });
+        }
+
+        function backToList() {
+            window.location.href = `students.html?room=${encodeURIComponent(teacherRoom)}&tname=${encodeURIComponent(teacherName)}`;
+        }
+
+        function toggleOther(selectObj) {
+            const otherInput = document.getElementById('relationshipOther');
+            if(selectObj.value === 'อื่นๆ') {
+                otherInput.classList.remove('hidden'); otherInput.required = true;
+            } else {
+                otherInput.classList.add('hidden'); otherInput.required = false;
+            }
+        }
+
+        function getLocation() {
+            Swal.fire({ title: 'กำลังปักหมุด...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            navigator.geolocation.getCurrentPosition((p) => {
+                const lat = p.coords.latitude; const lng = p.coords.longitude;
+                document.getElementById('lat').value = lat;
+                document.getElementById('lng').value = lng;
+                document.getElementById('locationData').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                
+                document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${lat},${lng}&hl=th&z=17&output=embed`;
+                document.getElementById('mapPreviewContainer').classList.remove('hidden');
+                Swal.close();
+            }, (e) => { Swal.fire('Error', 'กรุณาเปิด GPS', 'error'); }, { enableHighAccuracy: true });
+        }
+
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                document.getElementById('cameraVideo').srcObject = cameraStream;
+                document.getElementById('cameraUI').classList.remove('hidden');
+                document.getElementById('openCameraBtn').classList.add('hidden');
+                document.getElementById('previewContainer').classList.add('hidden');
+            } catch (err) { Swal.fire('Error', 'เข้าถึงกล้องไม่ได้', 'error'); }
+        }
+
+        function takeSnapshot() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            base64Image = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('imagePreview').src = base64Image;
+            document.getElementById('previewContainer').classList.remove('hidden');
+            document.getElementById('cameraButtonText').innerText = "ถ่ายภาพใหม่";
+            stopCameraAndHide();
+        }
+
+        function stopCameraAndHide() {
+            if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+            document.getElementById('cameraUI').classList.add('hidden');
+            document.getElementById('openCameraBtn').classList.remove('hidden');
+        }
+
+        function getCheckedValues(name) {
+            return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value).join(', ');
+        }
+
+        document.getElementById('visitForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!document.getElementById('lat').value || !document.getElementById('lng').value) {
+                Swal.fire('แจ้งเตือน', 'กรุณากดปุ่ม "ปักหมุด" เพื่อเก็บพิกัด GPS', 'warning'); return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...';
+            
+            try {
+                let relValue = document.getElementById('relationship').value;
+                if(relValue === 'อื่นๆ') { relValue = document.getElementById('relationshipOther').value; }
+
+                const payload = {
+                    action: "submitVisit",
+                    teacherId: document.getElementById('teacherId').value,
+                    teacherName: document.getElementById('teacherName').value,
+                    rowId: document.getElementById('rowId').value, 
+                    studentSid: document.getElementById('studentSid').value,
+                    studentPre: document.getElementById('studentPre').value,
+                    studentFname: document.getElementById('studentFname').value,
+                    studentLname: document.getElementById('studentLname').value,
+                    
+                    informantName: document.getElementById('informantName').value,
+                    relationship: relValue,
+                    phone: "'" + document.getElementById('phone').value, 
+                    
+                    housingType: document.getElementById('housingType').value,
+                    transportation: document.getElementById('transportation').value,
+                    housingCondition: document.getElementById('housingCondition').value,
+                    utilities: getCheckedValues('utilities'),
+                    environment: getCheckedValues('environment'),
+                    
+                    familySize: document.getElementById('familySize').value,
+                    livingWith: getCheckedValues('livingWith'),
+                    relFather: document.getElementById('relFather').value,
+                    relMother: document.getElementById('relMother').value,
+                    relSibling: document.getElementById('relSibling').value,
+                    relRelative: document.getElementById('relRelative').value,
+                    
+                    riskHealth: getCheckedValues('riskHealth'),
+                    riskSafety: getCheckedValues('riskSafety'),
+                    riskDrugs: getCheckedValues('riskDrugs'),
+                    riskSex: getCheckedValues('riskSex'),
+                    riskAggression: getCheckedValues('riskAggression'),
+                    riskTech: getCheckedValues('riskTech'),
+                    
+                    assistAcademic: document.getElementById('assistAcademic').value,
+                    assistBehavior: document.getElementById('assistBehavior').value,
+                    assistEconomy: document.getElementById('assistEconomy').value,
+                    parentConcern: document.getElementById('parentConcern').value,
+
+                    lat: document.getElementById('lat').value,
+                    lng: document.getElementById('lng').value,
+                    imageBase64: base64Image
+                };
+
+                const res = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const result = await res.json();
+                
+                if (result.status === 'success') {
+                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลสำเร็จ!', timer: 1500, showConfirmButton: false }).then(() => { 
+                        backToList();
+                    });
+                } else {
+                    Swal.fire('ล้มเหลว', result.message, 'error');
+                }
+            } catch (error) { 
+                Swal.fire('Error', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error'); 
+            } finally { 
+                btn.disabled = false; btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> บันทึกข้อมูล'; 
+            }
+        });
+    </script>
+</body>
+</html>
