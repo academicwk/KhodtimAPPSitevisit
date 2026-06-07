@@ -18,23 +18,24 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <div class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-md pb-10">
+<div id="main-view" class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-md">
         <div class="bg-blue-600 text-white p-4 rounded-b-3xl shadow-lg relative">
-            <div class="flex items-center space-x-3 mb-2">
-                <img src="https://img2.pic.in.th/4d3a830f3eb506411.png" class="w-10 h-10 bg-white rounded-full p-1">
-                <div>
-                    <p class="text-sm opacity-90">ยินดีต้อนรับ ผู้บันทึก</p>
-                    <p id="list-teacher-profile" class="font-bold text-lg">กำลังโหลดข้อมูล...</p>
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex items-center space-x-3">
+                    <img src="https://img2.pic.in.th/4d3a830f3eb506411.png" class="w-10 h-10 bg-white rounded-full p-1">
+                    <div>
+                        <p class="text-sm opacity-90">ระบบเยี่ยมบ้าน</p>
+                        <p id="list-teacher-profile" class="font-bold text-lg">กำลังโหลด...</p>
+                    </div>
                 </div>
+                <button onclick="handleLogout()" class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full shadow">ออกจากระบบ</button>
             </div>
-            <div class="mt-4 bg-white bg-opacity-20 p-3 rounded-xl border border-white border-opacity-30 text-center">
-                <h2 class="text-xl font-bold">ระบบบันทึกข้อมูลเยี่ยมบ้าน</h2>
-                <p class="text-xs opacity-90 mt-1">โปรดเลือกรหัสนักเรียนด้านล่างเพื่อดำเนินการ</p>
+            <div class="mt-4 bg-white bg-opacity-20 p-3 rounded-xl border border-white border-opacity-30">
+                <h2 class="text-xl font-bold text-center">โปรดเลือกรายชื่อนักเรียน</h2>
             </div>
         </div>
 
-        <div id="studentListContainer" class="px-4 mt-6 space-y-3">
-            </div>
+        <div id="studentListContainer" class="px-4 mt-4 space-y-3 pb-24"></div>
     </div>
 
     <script>
@@ -68,7 +69,7 @@
             }).catch(err => { Swal.fire('Error', 'เชื่อมต่อข้อมูลนักเรียนล้มเหลว', 'error'); });
         }
 
-        function renderStudentList(students) {
+function renderStudentList(students) {
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
             if(students.length === 0) {
@@ -79,14 +80,14 @@
                 const card = document.createElement("div");
                 card.className = "bg-white p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer border border-gray-100";
                 card.onclick = () => {
-                    window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(teacherRoom)}&tname=${encodeURIComponent(teacherName)}`;
+                    window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(teacherRoom)}&tname=${encodeURIComponent(teacherName)}&fname=${encodeURIComponent(student.fname)}&lname=${encodeURIComponent(student.lname)}&pre=${encodeURIComponent(student.pre)}&sno=${encodeURIComponent(student.sno)}`;
                 };
                 card.innerHTML = `
                     <div class="triangle-corner"></div>
                     <div class="sno-text">${student.sno}</div>
                     
                     <div class="flex items-center space-x-4">
-                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-14 h-14 rounded-full object-cover border-2 border-blue-100 shadow-sm opacity-80">
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-sm opacity-80">
                         <div>
                             <p class="font-bold text-gray-800 text-base leading-tight">${student.fullName}</p>
                             <p class="text-xs text-gray-500 mt-1">รหัสนักเรียน: ${student.sid}</p>
@@ -94,6 +95,17 @@
                     </div>
                 `;
                 container.appendChild(card);
+            });
+        }
+
+        function handleLogout() {
+            Swal.fire({
+                title: 'ยืนยันการออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem("homeVisitUser");
+                    window.location.href = 'index.html';
+                }
             });
         }
     </script>
