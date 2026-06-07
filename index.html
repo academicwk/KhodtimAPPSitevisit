@@ -1,44 +1,52 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <base target="_top"> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Khodtim APP - ล็อกอิน</title>
+    <title>Khodtim APP - เข้าสู่ระบบ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
         .login-bg {
             background-image: url('https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
-            background-size: cover; background-position: center;
+            background-size: cover;
+            background-position: center;
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen relative">
+
     <div id="loginWrapper" class="min-h-screen flex flex-col items-center justify-center relative login-bg">
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-        <div class="relative z-10 w-full max-w-sm px-6 flex flex-col items-center">
-            
-            <div id="loadingView" class="bg-white p-10 rounded-2xl shadow-xl w-full flex flex-col justify-center items-center">
-                <svg class="animate-spin h-12 w-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        
+        <div id="loadingView" class="relative z-10 w-full max-w-sm px-6 flex flex-col items-center">
+            <div class="bg-white p-8 rounded-3xl shadow-2xl w-full flex flex-col items-center justify-center">
+                <svg class="animate-spin h-16 w-16 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 <p class="text-blue-900 font-bold" id="loadingText">กำลังตรวจสอบข้อมูล...</p>
             </div>
+        </div>
 
-            <div id="loginView" class="bg-white p-6 rounded-2xl shadow-xl w-full mb-6 hidden">
-                <img src="https://img2.pic.in.th/KhodtimAPP.png" alt="Logo" class="w-auto h-32 mb-6 flex-col items-center mx-auto">
+        <div id="loginView" class="relative z-10 w-full max-w-sm px-6 flex flex-col items-center hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-xl w-full mb-6">
+                <img src="https://img2.pic.in.th/KhodtimAPP.png" alt="Logo" class="w-auto h-32 mb-6 mx-auto">
                 <form id="loginForm" class="space-y-4">
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2">ชื่อผู้ใช้ (Username)</label>
-                        <input type="number" id="inputUsername" required placeholder="เลขประจำตัวประชาชน 13 หลัก" class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="number" id="inputUsername" required placeholder="เลขประจำตัวประชาชน 13 หลัก" class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2">รหัสผ่าน (Password)</label>
-                        <input type="password" id="inputPassword" required placeholder="วัน เดือน ปีเกิด" class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="password" id="inputPassword" required placeholder="วัน เดือน ปีเกิด" class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
-                    <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
+                    <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200 mt-4">
                         เข้าสู่ระบบ
                     </button>
                 </form>
@@ -48,7 +56,7 @@
                         <img src="https://img2.pic.in.th/4d3a830f3eb506411.png" alt="LogoEduSandbox" class="h-20 w-auto">
                     </div>
                     <div class="text-center text-[10px] md:text-xs text-red-900 leading-tight font-medium">
-                        นวัตกรรมการด้านการบริหารจัดการสถานศึกษา<br>
+                        นวัตกรรมด้านการบริหารจัดการสถานศึกษา<br>
                         ได้รับการรับรองให้เป็นการปฏิบัติที่เป็นเลิศ (Best Practice)<br>
                         ระดับดีเยี่ยม จากเทศบาลนครระยอง ปีการศึกษา 2566
                     </div>
