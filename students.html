@@ -17,6 +17,7 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
+
     <div id="main-view" class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-md">
         <div class="bg-blue-600 text-white p-4 rounded-b-3xl shadow-lg relative">
             <div class="flex justify-between items-start mb-2">
@@ -27,7 +28,7 @@
                         <p id="list-teacher-profile" class="font-bold text-lg">กำลังโหลด...</p>
                     </div>
                 </div>
-                <button onclick="handleLogout()" class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full shadow">ออกจากระบบ</button>
+                <button onclick="handleLogout()" class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full shadow transition-colors">ออกจากระบบ</button>
             </div>
             <div class="mt-4 bg-white bg-opacity-20 p-3 rounded-xl border border-white border-opacity-30">
                 <h2 class="text-xl font-bold text-center">โปรดเลือกรายชื่อนักเรียน</h2>
@@ -38,7 +39,7 @@
     </div>
 
     <script>
-        const GAS_WEB_APP_URL = "วาง URL ของครูตรงนี้ครับ";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
         
         const urlParams = new URLSearchParams(window.location.search);
         const teacherRoom = urlParams.get('room');
@@ -71,42 +72,4 @@
         function renderStudentList(students) {
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
-            if(students.length === 0) {
-                container.innerHTML = '<div class="bg-red-50 border border-red-200 p-4 rounded-xl text-center"><p class="text-red-500 font-bold text-sm">ไม่พบรายชื่อนักเรียนประจำชั้นห้องนี้</p></div>';
-                return;
-            }
-            students.forEach(student => {
-                const card = document.createElement("div");
-                card.className = "bg-white p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer border border-gray-100";
-                card.onclick = () => {
-                    window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(teacherRoom)}&tname=${encodeURIComponent(teacherName)}&fname=${encodeURIComponent(student.fname)}&lname=${encodeURIComponent(student.lname)}&pre=${encodeURIComponent(student.pre)}&sno=${encodeURIComponent(student.sno)}`;
-                };
-                card.innerHTML = `
-                    <div class="triangle-corner"></div>
-                    <div class="sno-text">${student.sno}</div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-sm opacity-80">
-                        <div>
-                            <p class="font-bold text-gray-800 text-base leading-tight">${student.fullName}</p>
-                            <p class="text-xs text-gray-500 mt-1">รหัสนักเรียน: ${student.sid}</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function handleLogout() {
-            Swal.fire({
-                title: 'ยืนยันการออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    localStorage.removeItem("homeVisitUser");
-                    window.location.href = 'index.html';
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+            if(students.length ===
