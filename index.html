@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Khodtim APP - เข้าสู่ระบบ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -23,7 +22,6 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen relative pb-20">
-
   <div id="login-view" class="min-h-screen flex flex-col items-center justify-center relative login-bg">
     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
     <div class="relative z-10 w-full max-w-sm px-6 flex flex-col items-center">
@@ -40,13 +38,12 @@
         <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
           เข้าสู่ระบบ
         </button>
-
         <div class="mt-5">
           <div class="flex justify-center mb-2 opacity-90 hover:opacity-100 transition-opacity">
              <img src="https://img2.pic.in.th/4d3a830f3eb506411.png" alt="LogoEduSandbox" class="h-20 w-auto">
           </div>
           <div class="text-center text-[10px] md:text-xs text-red-900 mb-6 leading-tight font-medium">
-            นวัตกรรมการด้านการบริหารจัดการสถานศึกษา<br>
+            นวัตกรรมด้านการบริหารจัดการสถานศึกษา<br>
             ได้รับการรับรองให้เป็นการปฏิบัติที่เป็นเลิศ (Best Practice)<br>
             ระดับดีเยี่ยม จากเทศบาลนครระยอง ปีการศึกษา 2566
           </div>
@@ -56,7 +53,7 @@
   </div>
 
   <script>
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
+    const GAS_WEB_APP_URL = "วาง URL ของครูตรงนี้ครับ";
 
     document.addEventListener("DOMContentLoaded", () => {
       checkLocalSession(); 
@@ -104,6 +101,5 @@
       } catch (error) { Swal.fire("ข้อผิดพลาด", "เชื่อมต่อฐานข้อมูลไม่สำเร็จ", "error"); }
     }
   </script>
-</body>
 </body>
 </html>
