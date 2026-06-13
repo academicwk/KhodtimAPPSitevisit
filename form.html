@@ -306,7 +306,7 @@
         </form>
     </div>
 
-    <script>
+<script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
 
         let base64Image = "";
@@ -369,7 +369,7 @@
             }
         }
 
-// ฟังก์ชันจัดการการอัปโหลดและบังคับครอปภาพเป็นแนวนอน (Landscape 4:3)
+        // ฟังก์ชันอัปโหลดและครอปภาพแนวนอน
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -379,13 +379,12 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const targetWidth = 800;  // บังคับกว้าง 800
-                    const targetHeight = 600; // บังคับสูง 600 (แนวนอน 4:3)
+                    const targetWidth = 800;
+                    const targetHeight = 600;
                     canvas.width = targetWidth;
                     canvas.height = targetHeight;
                     const ctx = canvas.getContext('2d');
 
-                    // คำนวณการครอปภาพส่วนเกินออกโดยไม่ทำให้ภาพเบี้ยว (Object-Cover)
                     const imgRatio = img.width / img.height;
                     const targetRatio = targetWidth / targetHeight;
                     let drawWidth, drawHeight, offsetX, offsetY;
@@ -402,7 +401,6 @@
                         offsetY = (img.height - drawHeight) / 2;
                     }
 
-                    // วาดรูปลงตรงกลาง Canvas
                     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight, 0, 0, targetWidth, targetHeight);
                     
                     base64Image = canvas.toDataURL('image/jpeg', 0.7);
@@ -413,6 +411,7 @@
             }
             reader.readAsDataURL(file);
         }
+
         function setCheckedValues(name, commaSeparatedString) {
             const boxes = document.querySelectorAll(`input[name="${name}"]`);
             boxes.forEach(cb => cb.checked = false);
@@ -422,8 +421,6 @@
         }
 
         function loadExistingData() {
-            Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: "getStudentData", studentSid: studentSid }),
@@ -431,7 +428,6 @@
             })
             .then(res => res.json())
             .then(result => {
-                Swal.close();
                 if (result.status === 'found') {
                     document.getElementById('rowId').value = result.rowId;
                     const d = result.data;
@@ -506,7 +502,6 @@
         }
 
         function getLocation() {
-            Swal.fire({ title: 'กำลังปักหมุด...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             navigator.geolocation.getCurrentPosition((p) => {
                 const lat = p.coords.latitude; const lng = p.coords.longitude;
                 document.getElementById('lat').value = lat;
@@ -515,8 +510,7 @@
                 
                 document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${lat},${lng}&hl=th&z=17&output=embed`;
                 document.getElementById('mapPreviewContainer').classList.remove('hidden');
-                Swal.close();
-            }, (e) => { Swal.fire('Error', 'กรุณาเปิด GPS', 'error'); }, { enableHighAccuracy: true });
+            }, (e) => { Swal.fire('Error', 'กรุณาเปิด GPS และอนุญาตการเข้าถึงตำแหน่ง', 'error'); }, { enableHighAccuracy: true });
         }
 
         async function startCamera() {
@@ -530,13 +524,13 @@
             } catch (err) { Swal.fire('Error', 'เข้าถึงกล้องไม่ได้', 'error'); }
         }
 
-// ฟังก์ชันถ่ายภาพและบังคับครอปเป็นแนวนอน (Landscape 4:3)
+        // ฟังก์ชันถ่ายภาพและครอปแนวนอน
         function takeSnapshot() {
             const video = document.getElementById('cameraVideo');
             const canvas = document.createElement('canvas');
             
-            const targetWidth = 800;  // บังคับกว้าง 800
-            const targetHeight = 600; // บังคับสูง 600 (แนวนอน 4:3)
+            const targetWidth = 800;
+            const targetHeight = 600;
             canvas.width = targetWidth;
             canvas.height = targetHeight;
             const ctx = canvas.getContext('2d');
