@@ -29,7 +29,7 @@
             </div>
         </div>
 
-        <form id="visitForm" class="px-4 mt-4 space-y-4">
+<form id="visitForm" class="px-4 mt-4 space-y-4">
             <input type="hidden" id="teacherId" value="">
             <input type="hidden" id="teacherName" value="">
             <input type="hidden" id="rowId" value="">
@@ -51,8 +51,19 @@
                         <label class="block text-xs font-bold text-gray-700">เลขประจำตัวนักเรียน</label>
                         <input type="text" id="studentSidDisplay" readonly class="input-field font-bold text-blue-900 bg-gray-200">
                     </div>
+                    
+                    <div class="pt-2 border-t border-gray-100">
+                        <label class="block text-xs font-bold text-blue-600">รูปแบบการดำเนินการ <span class="text-red-500">*</span></label>
+                        <select id="visitFormat" required onchange="toggleVisitFormat(this)" class="input-field border-blue-300 bg-blue-50 text-blue-900 font-bold">
+                            <option value="">-- เลือกรูปแบบ --</option>
+                            <option value="On-site">On-site (ลงพื้นที่เยี่ยมบ้านจริง)</option>
+                            <option value="At School">At School (มาพบที่โรงเรียน)</option>
+                            <option value="Online">Online (ผ่านสื่อออนไลน์)</option>
+                        </select>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-700">ชื่อ-สกุล ผู้ให้ข้อมูล</label>
+                        <label class="block text-xs font-bold text-gray-700 mt-2">ชื่อ-สกุล ผู้ให้ข้อมูล</label>
                         <input type="text" id="informantName" required class="input-field" placeholder="ระบุชื่อ-สกุล">
                     </div>
                     <div>
@@ -223,14 +234,15 @@
             </div>
 
             <div class="bg-white rounded-xl shadow p-4">
-                <h3 class="section-title text-blue-800">พิกัดและภาพถ่ายหลักฐาน</h3>
+                <h3 class="section-title text-blue-800">หลักฐานการดำเนินการ</h3>
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-2">พิกัด GPS <span class="text-red-500">*</span></label>
+                    
+                    <div id="gpsSection" class="hidden">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">พิกัด GPS หน้าบ้าน <span class="text-red-500">*</span></label>
                         <div class="flex gap-2 mb-2">
                             <input type="text" id="locationData" readonly placeholder="กดปุ่มปักหมุด" class="input-field flex-1 !mt-0 bg-gray-100">
                             <input type="hidden" id="lat"><input type="hidden" id="lng">
-                            <button type="button" onclick="getLocation()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 rounded-lg shadow-sm transition whitespace-nowrap text-sm">ปักหมุด</button>
+                            <button type="button" onclick="getLocation()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 rounded-lg shadow-sm transition whitespace-nowrap text-sm">📍 ปักหมุด</button>
                         </div>
                         <div id="mapPreviewContainer" class="hidden mt-2 rounded-lg overflow-hidden border border-gray-200 shadow-sm w-full h-40 bg-gray-100">
                             <iframe id="mapIframe" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
@@ -238,18 +250,25 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-2">ถ่ายภาพหน้าบ้านนักเรียน <span class="text-red-500">*</span></label>
-                        <button type="button" onclick="startCamera()" id="openCameraBtn" class="w-full bg-blue-50 text-blue-600 border-2 border-dashed border-blue-300 py-6 rounded-xl font-bold flex flex-col items-center gap-2 hover:bg-blue-100 transition">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span id="cameraButtonText" class="text-sm">กดเพื่อถ่ายภาพหน้าบ้าน</span>
-                        </button>
+                        <label class="block text-xs font-bold text-gray-700 mb-2" id="cameraLabelText">อัปโหลดภาพหลักฐาน <span class="text-red-500">*</span></label>
+                        
+                        <input type="file" id="imageUploadInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                        
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <button type="button" onclick="startCamera()" id="openCameraBtn" class="hidden bg-blue-50 text-blue-600 border border-blue-300 py-3 rounded-lg font-bold flex justify-center items-center gap-2 hover:bg-blue-100 transition text-sm">
+                                📸 ถ่ายภาพ
+                            </button>
+                            <button type="button" onclick="document.getElementById('imageUploadInput').click()" id="uploadImageBtn" class="col-span-2 bg-green-50 text-green-600 border border-green-300 py-3 rounded-lg font-bold flex justify-center items-center gap-2 hover:bg-green-100 transition text-sm">
+                                📁 เลือกรูปในเครื่อง
+                            </button>
+                        </div>
 
-                        <div id="cameraUI" class="hidden mt-3">
+                        <div id="cameraUI" class="hidden mt-3 mb-3">
                             <div class="relative w-full aspect-[3/4] bg-black rounded-xl overflow-hidden shadow-inner">
                                 <video id="cameraVideo" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline></video>
                             </div>
                             <div class="grid grid-cols-2 gap-3 mt-3">
-                                <button type="button" onclick="takeSnapshot()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow text-sm">📸 ถ่ายภาพ</button>
+                                <button type="button" onclick="takeSnapshot()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg shadow text-sm">ถ่ายเลย!</button>
                                 <button type="button" onclick="stopCameraAndHide()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 rounded-lg text-sm">ยกเลิก</button>
                             </div>
                         </div>
@@ -275,13 +294,12 @@
         </form>
     </div>
 
-    <script>
+<script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
 
         let base64Image = "";
         let cameraStream = null;
 
-        // ดึงข้อมูลพื้นฐานจาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const studentSid = urlParams.get('sid');
         const teacherRoom = urlParams.get('room');
@@ -294,7 +312,6 @@
         if(!studentSid || !teacherRoom) { window.location.href = 'index.html'; }
 
         document.addEventListener("DOMContentLoaded", () => {
-            // โหลดข้อมูลพื้นฐานขึ้นหน้าจอทันที ไม่ต้องรอหลังบ้าน
             document.getElementById('teacherName').value = teacherName || "";
             document.getElementById('teacher-profile').innerText = `ผู้บันทึก: ${teacherName || "คุณครู"}`;
             
@@ -310,6 +327,63 @@
             
             loadExistingData();
         });
+
+        // ฟังก์ชันควบคุมการแสดงผลของรูปแบบเยี่ยมบ้าน
+        function toggleVisitFormat(selectObj) {
+            const format = selectObj.value;
+            const gpsSec = document.getElementById('gpsSection');
+            const camBtn = document.getElementById('openCameraBtn');
+            const uploadBtn = document.getElementById('uploadImageBtn');
+            const camLbl = document.getElementById('cameraLabelText');
+
+            if (format === 'On-site') {
+                gpsSec.classList.remove('hidden');
+                camBtn.classList.remove('hidden');
+                uploadBtn.classList.remove('col-span-2');
+                camLbl.innerHTML = 'ภาพถ่ายหน้าบ้านนักเรียน <span class="text-red-500">*</span>';
+            } else if (format === 'At School' || format === 'Online') {
+                gpsSec.classList.add('hidden');
+                camBtn.classList.add('hidden');
+                uploadBtn.classList.add('col-span-2');
+                camLbl.innerHTML = 'ภาพหลักฐานการพูดคุยกับผู้ปกครอง <span class="text-red-500">*</span>';
+                
+                // ล้างค่า GPS ทิ้งถ้าไม่ได้ลงพื้นที่
+                document.getElementById('lat').value = '';
+                document.getElementById('lng').value = '';
+                document.getElementById('locationData').value = '';
+                document.getElementById('mapPreviewContainer').classList.add('hidden');
+            } else {
+                gpsSec.classList.add('hidden');
+                camBtn.classList.add('hidden');
+                uploadBtn.classList.add('col-span-2');
+            }
+        }
+
+        // ฟังก์ชันจัดการการอัปโหลดและย่อขนาดรูปอัตโนมัติ
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800; // บีบอัดรูปไม่ให้ใหญ่เกินไป เซิร์ฟเวอร์จะได้ไม่อืด
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    base64Image = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('imagePreview').src = base64Image;
+                    document.getElementById('previewContainer').classList.remove('hidden');
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
 
         function setCheckedValues(name, commaSeparatedString) {
             const boxes = document.querySelectorAll(`input[name="${name}"]`);
@@ -333,6 +407,11 @@
                 if (result.status === 'found') {
                     document.getElementById('rowId').value = result.rowId;
                     const d = result.data;
+                    
+                    // ดึงค่ารูปแบบการเยี่ยมบ้านมาแสดงและควบคุมหน้าจอ
+                    document.getElementById('visitFormat').value = d.visitFormat || "";
+                    toggleVisitFormat(document.getElementById('visitFormat'));
+
                     document.getElementById('informantName').value = d.informantName || "";
                     
                     const rel = d.relationship || "";
@@ -380,7 +459,6 @@
                     if (d.imageUrl) {
                         document.getElementById('imagePreview').src = d.imageUrl;
                         document.getElementById('previewContainer').classList.remove('hidden');
-                        document.getElementById('cameraButtonText').innerText = "ถ่ายภาพใหม่ (หากต้องการเปลี่ยน)";
                     }
                 }
             })
@@ -420,6 +498,7 @@
                 document.getElementById('cameraVideo').srcObject = cameraStream;
                 document.getElementById('cameraUI').classList.remove('hidden');
                 document.getElementById('openCameraBtn').classList.add('hidden');
+                document.getElementById('uploadImageBtn').classList.add('hidden');
                 document.getElementById('previewContainer').classList.add('hidden');
             } catch (err) { Swal.fire('Error', 'เข้าถึงกล้องไม่ได้', 'error'); }
         }
@@ -432,7 +511,6 @@
             base64Image = canvas.toDataURL('image/jpeg', 0.7);
             document.getElementById('imagePreview').src = base64Image;
             document.getElementById('previewContainer').classList.remove('hidden');
-            document.getElementById('cameraButtonText').innerText = "ถ่ายภาพใหม่";
             stopCameraAndHide();
         }
 
@@ -440,6 +518,7 @@
             if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
             document.getElementById('cameraUI').classList.add('hidden');
             document.getElementById('openCameraBtn').classList.remove('hidden');
+            document.getElementById('uploadImageBtn').classList.remove('hidden');
         }
 
         function getCheckedValues(name) {
@@ -448,9 +527,10 @@
 
         document.getElementById('visitForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            if (!document.getElementById('lat').value || !document.getElementById('lng').value) {
-                Swal.fire('แจ้งเตือน', 'กรุณากดปุ่ม "ปักหมุด" เพื่อเก็บพิกัด GPS', 'warning'); return;
+            
+            const format = document.getElementById('visitFormat').value;
+            if (format === 'On-site' && (!document.getElementById('lat').value || !document.getElementById('lng').value)) {
+                Swal.fire('แจ้งเตือน', 'กรณี On-site กรุณากดปุ่ม "ปักหมุด" เพื่อเก็บพิกัด GPS', 'warning'); return;
             }
 
             const btn = document.getElementById('submitBtn');
@@ -465,6 +545,7 @@
                     teacherId: document.getElementById('teacherId').value,
                     teacherName: document.getElementById('teacherName').value,
                     rowId: document.getElementById('rowId').value, 
+                    visitFormat: format, // ส่งข้อมูลรูปแบบไปด้วย
                     studentSid: document.getElementById('studentSid').value,
                     studentSno: document.getElementById('studentSno').value,
                     studentRoom: document.getElementById('studentRoom').value,
