@@ -270,13 +270,19 @@
                         </div>
 
                         <div id="cameraUI" class="hidden mt-3 mb-3">
-                            <div class="relative w-full aspect-[3/4] bg-black rounded-xl overflow-hidden shadow-inner">
+                            <!-- กรอบพรีวิวกล้อง เปลี่ยนเป็นแนวนอน 4:3 -->
+                            <div class="relative w-full aspect-[4/3] bg-black rounded-xl overflow-hidden shadow-inner">
                                 <video id="cameraVideo" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline></video>
                             </div>
                             <div class="grid grid-cols-2 gap-3 mt-3">
                                 <button type="button" onclick="takeSnapshot()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg shadow text-sm">ถ่ายเลย!</button>
                                 <button type="button" onclick="stopCameraAndHide()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 rounded-lg text-sm">ยกเลิก</button>
                             </div>
+                        </div>
+                        
+                        <div class="mt-3 hidden" id="previewContainer">
+                            <!-- กรอบแสดงรูปภาพหลังถ่าย/อัปโหลด บังคับเป็นแนวนอน -->
+                            <img id="imagePreview" class="w-full aspect-[4/3] object-cover mx-auto rounded-xl shadow-md border border-gray-200">
                         </div>
                         
                         <div class="mt-3 hidden" id="previewContainer">
@@ -363,6 +369,7 @@
             }
         }
 
+// ฟังก์ชันจัดการการอัปโหลดและบังคับครอปภาพเป็นแนวนอน (Landscape 4:3)
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -372,12 +379,31 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
+                    const targetWidth = 800;  // บังคับกว้าง 800
+                    const targetHeight = 600; // บังคับสูง 600 (แนวนอน 4:3)
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // คำนวณการครอปภาพส่วนเกินออกโดยไม่ทำให้ภาพเบี้ยว (Object-Cover)
+                    const imgRatio = img.width / img.height;
+                    const targetRatio = targetWidth / targetHeight;
+                    let drawWidth, drawHeight, offsetX, offsetY;
+
+                    if (imgRatio > targetRatio) {
+                        drawHeight = img.height;
+                        drawWidth = drawHeight * targetRatio;
+                        offsetX = (img.width - drawWidth) / 2;
+                        offsetY = 0;
+                    } else {
+                        drawWidth = img.width;
+                        drawHeight = drawWidth / targetRatio;
+                        offsetX = 0;
+                        offsetY = (img.height - drawHeight) / 2;
+                    }
+
+                    // วาดรูปลงตรงกลาง Canvas
+                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight, 0, 0, targetWidth, targetHeight);
                     
                     base64Image = canvas.toDataURL('image/jpeg', 0.7);
                     document.getElementById('imagePreview').src = base64Image;
@@ -387,7 +413,6 @@
             }
             reader.readAsDataURL(file);
         }
-
         function setCheckedValues(name, commaSeparatedString) {
             const boxes = document.querySelectorAll(`input[name="${name}"]`);
             boxes.forEach(cb => cb.checked = false);
@@ -505,11 +530,34 @@
             } catch (err) { Swal.fire('Error', 'เข้าถึงกล้องไม่ได้', 'error'); }
         }
 
+// ฟังก์ชันถ่ายภาพและบังคับครอปเป็นแนวนอน (Landscape 4:3)
         function takeSnapshot() {
             const video = document.getElementById('cameraVideo');
             const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const targetWidth = 800;  // บังคับกว้าง 800
+            const targetHeight = 600; // บังคับสูง 600 (แนวนอน 4:3)
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+
+            const videoRatio = video.videoWidth / video.videoHeight;
+            const targetRatio = targetWidth / targetHeight;
+            let drawWidth, drawHeight, offsetX, offsetY;
+
+            if (videoRatio > targetRatio) {
+                drawHeight = video.videoHeight;
+                drawWidth = drawHeight * targetRatio;
+                offsetX = (video.videoWidth - drawWidth) / 2;
+                offsetY = 0;
+            } else {
+                drawWidth = video.videoWidth;
+                drawHeight = drawWidth / targetRatio;
+                offsetX = 0;
+                offsetY = (video.videoHeight - drawHeight) / 2;
+            }
+
+            ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight, 0, 0, targetWidth, targetHeight);
             base64Image = canvas.toDataURL('image/jpeg', 0.7);
             document.getElementById('imagePreview').src = base64Image;
             document.getElementById('previewContainer').classList.remove('hidden');
