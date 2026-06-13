@@ -53,7 +53,7 @@
         <div id="studentListContainer" class="px-4 mt-4 space-y-3 pb-24"></div>
     </div>
 
-    <script>
+<script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-Fkv-GGy4QnQE9gY05KNwqV7pDQHDThSL8wdcmnkF9xzG8yRzd4-sulkUTWnNKZsF/exec";
         
         let globalTeacherRoom = "";
@@ -74,10 +74,6 @@
         });
 
         function fetchStudents() {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({ title: 'กำลังดึงรายชื่อจาก WeM-2026...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            }
-            
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: "getStudents", teacherRoom: globalTeacherRoom }),
@@ -85,14 +81,12 @@
             })
             .then(res => res.json())
             .then(result => {
-                if (typeof Swal !== 'undefined') Swal.close();
                 if (result.status === 'success') {
                     renderStudentList(result.students);
                 } else {
                     Swal.fire('ข้อผิดพลาด', 'ดึงข้อมูลล้มเหลว', 'error');
                 }
             }).catch(err => { 
-                if (typeof Swal !== 'undefined') Swal.close();
                 alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message); 
             });
         }
@@ -124,9 +118,13 @@
                 const statusBadge = isVisited ? `<span class="absolute bottom-2 right-3 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">✔️ เยี่ยมแล้ว</span>` : '';
 
                 card.className = `p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer ${borderClass}`;
-                card.onclick = () => {
-                    window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(globalTeacherRoom)}&tname=${encodeURIComponent(globalTeacherName)}&fname=${encodeURIComponent(student.fname)}&lname=${encodeURIComponent(student.lname)}&pre=${encodeURIComponent(student.pre)}&sno=${encodeURIComponent(student.sno)}`;
-                };
+                
+                // นำสถานะโหลดออก และเปลี่ยนหน้าทันทีเมื่อกดคลิก
+                card.addEventListener('click', () => {
+                    const targetUrl = `form.html?sid=${encodeURIComponent(String(student.sid || ''))}&room=${encodeURIComponent(String(globalTeacherRoom || ''))}&tname=${encodeURIComponent(String(globalTeacherName || ''))}&fname=${encodeURIComponent(String(student.fname || ''))}&lname=${encodeURIComponent(String(student.lname || ''))}&pre=${encodeURIComponent(String(student.pre || ''))}&sno=${encodeURIComponent(String(student.sno || ''))}`;
+                    window.location.href = targetUrl;
+                });
+
                 card.innerHTML = `
                     <div class="triangle-corner" style="${triangleColor}"></div>
                     <div class="sno-text">${student.sno}</div>
