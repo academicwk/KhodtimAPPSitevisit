@@ -33,8 +33,24 @@
             <div class="mt-4 bg-white bg-opacity-20 p-3 rounded-xl border border-white border-opacity-30">
                 <h2 class="text-xl font-bold text-center">โปรดเลือกรายชื่อนักเรียน</h2>
             </div>
+</div>
+
+        <div class="px-4 mt-4">
+            <div class="bg-white p-5 rounded-2xl shadow border border-gray-100 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">ความคืบหน้าการเยี่ยมบ้านประจำชั้น</p>
+                <div class="my-1">
+                    <span id="progressPercent" class="text-5xl font-black text-green-600">0%</span>
+                </div>
+                <p class="text-xs font-medium text-gray-500 mb-3">
+                    เยี่ยมแล้ว <span id="visitedCount" class="font-bold text-gray-800 text-sm">0</span> จากทั้งหมด <span id="totalCount" class="font-bold text-gray-800 text-sm">0</span> คน
+                </p>
+                <div class="w-full bg-gray-200 rounded-full h-3.5 overflow-hidden">
+                    <div id="progressBar" class="bg-green-500 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
         </div>
 
+        <div id="studentListContainer" class="px-4 mt-4 space-y-3 pb-24"></div>
         <div id="studentListContainer" class="px-4 mt-4 space-y-3 pb-24"></div>
     </div>
 
@@ -87,40 +103,19 @@ function renderStudentList(students) {
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
             
-            if(!students || students.length === 0) {
-                container.innerHTML = `<div class="bg-red-50 border border-red-200 p-4 rounded-xl text-center"><p class="text-red-500 font-bold text-sm">ไม่พบรายชื่อนักเรียนห้อง ${globalTeacherRoom} ในระบบ WeM-2026</p></div>`;
-                return;
-            }
-            
-            students.forEach(student => {
-                const card = document.createElement("div");
-                
-                // ตรวจสอบสถานะเพื่อเปลี่ยนสีการแสดงผล
-                const isVisited = student.visited;
-                const borderClass = isVisited ? "border-2 border-green-500 bg-green-50" : "border border-gray-100 bg-white";
-                const triangleColor = isVisited ? "border-top-color: #22c55e;" : "border-top-color: #3b82f6;"; // เขียว vs น้ำเงิน
-                const statusBadge = isVisited ? `<span class="absolute bottom-2 right-3 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">✔️ เยี่ยมแล้ว</span>` : '';
+            // คำนวณเปอร์เซ็นต์และความคืบหน้าการเยี่ยมบ้าน (เพิ่มใหม่)
+            const total = students ? students.length : 0;
+            const visited = students ? students.filter(s => s.visited).length : 0;
+            const percent = total > 0 ? Math.round((visited / total) * 100) : 0;
 
-                card.className = `p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer ${borderClass}`;
-                card.onclick = () => {
-                    window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(globalTeacherRoom)}&tname=${encodeURIComponent(globalTeacherName)}&fname=${encodeURIComponent(student.fname)}&lname=${encodeURIComponent(student.lname)}&pre=${encodeURIComponent(student.pre)}&sno=${encodeURIComponent(student.sno)}`;
-                };
-                card.innerHTML = `
-                    <div class="triangle-corner" style="${triangleColor}"></div>
-                    <div class="sno-text">${student.sno}</div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-16 h-16 rounded-full object-cover border-2 shadow-sm opacity-80 ${isVisited ? 'border-green-300' : 'border-blue-100'}">
-                        <div>
-                            <p class="font-bold text-gray-800 text-base leading-tight">${student.fullName}</p>
-                            <p class="text-xs text-gray-500 mt-1">รหัสนักเรียน: ${student.sid}</p>
-                        </div>
-                    </div>
-                    ${statusBadge}
-                `;
-                container.appendChild(card);
-            });
-        }
+            // แสดงผลตัวเลขและแถบ Progress bar ขนาดใหญ่ไปยังหน้าเว็บ
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('visitedCount').innerText = visited;
+            document.getElementById('progressPercent').innerText = percent + "%";
+            document.getElementById('progressBar').style.width = percent + "%";
+            
+            if(!students || students.length === 0) {
+                
         function handleLogout() {
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
