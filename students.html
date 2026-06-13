@@ -83,7 +83,7 @@
             });
         }
 
-        function renderStudentList(students) {
+function renderStudentList(students) {
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
             
@@ -94,26 +94,33 @@
             
             students.forEach(student => {
                 const card = document.createElement("div");
-                card.className = "bg-white p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer border border-gray-100";
+                
+                // ตรวจสอบสถานะเพื่อเปลี่ยนสีการแสดงผล
+                const isVisited = student.visited;
+                const borderClass = isVisited ? "border-2 border-green-500 bg-green-50" : "border border-gray-100 bg-white";
+                const triangleColor = isVisited ? "border-top-color: #22c55e;" : "border-top-color: #3b82f6;"; // เขียว vs น้ำเงิน
+                const statusBadge = isVisited ? `<span class="absolute bottom-2 right-3 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">✔️ เยี่ยมแล้ว</span>` : '';
+
+                card.className = `p-4 rounded-xl shadow relative overflow-hidden active:scale-95 transition-transform cursor-pointer ${borderClass}`;
                 card.onclick = () => {
                     window.location.href = `form.html?sid=${student.sid}&room=${encodeURIComponent(globalTeacherRoom)}&tname=${encodeURIComponent(globalTeacherName)}&fname=${encodeURIComponent(student.fname)}&lname=${encodeURIComponent(student.lname)}&pre=${encodeURIComponent(student.pre)}&sno=${encodeURIComponent(student.sno)}`;
                 };
                 card.innerHTML = `
-                    <div class="triangle-corner"></div>
+                    <div class="triangle-corner" style="${triangleColor}"></div>
                     <div class="sno-text">${student.sno}</div>
                     
                     <div class="flex items-center space-x-4">
-                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-sm opacity-80">
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="w-16 h-16 rounded-full object-cover border-2 shadow-sm opacity-80 ${isVisited ? 'border-green-300' : 'border-blue-100'}">
                         <div>
                             <p class="font-bold text-gray-800 text-base leading-tight">${student.fullName}</p>
                             <p class="text-xs text-gray-500 mt-1">รหัสนักเรียน: ${student.sid}</p>
                         </div>
                     </div>
+                    ${statusBadge}
                 `;
                 container.appendChild(card);
             });
         }
-
         function handleLogout() {
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
